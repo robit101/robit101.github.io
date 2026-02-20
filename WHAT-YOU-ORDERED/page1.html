@@ -62,14 +62,16 @@
 
     <script>
         function startGame() {
-        
+    // Tell the parent page (Main Page) to start the music
+    window.parent.postMessage("startAudio", "*");
 
-            // Small delay to let the music 'catch' before the page changes
-            setTimeout(() => {
-                window.location.href = "page2.html";
-            }, 300); 
-        }
+    // Small delay to ensure the command is sent before we leave the page
+    setTimeout(() => {
+        window.location.href = "page2.html";
+    }, 300); //
+}
     </script>
 
 </body>
+
 </html>
