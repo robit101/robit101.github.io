@@ -71,18 +71,27 @@
        <div id="container"><iframe src="page1.html"></iframe></div>
     
        <script>
-        const bgm = document.getElementById('bgm');
-        
-        // Browsers require a user click before playing audio
-        // This listener starts the music on the very first click anywhere
-        window.addEventListener('click', () => {
-            if (bgm.paused) {
-                bgm.volume = 0.4; // Set to 40% so it doesn't overpower SFX
-                bgm.play().catch(error => {
-                    console.log("Autoplay prevented: ", error);
-                });
-            }
-        }, { once: true }); // '{ once: true }' makes sure this only runs on the first click
-    </script>
+    const bgm = document.getElementById('bgm');
+    
+    // Set initial volume for indiemusic.mp3
+    bgm.volume = 0.4;
+
+    // This listener catches the "startAudio" message from inside the iframe
+    window.addEventListener("message", (event) => {
+        if (event.data === "startAudio") {
+            console.log("Message received from iframe. Starting music...");
+            bgm.play().catch(error => {
+                console.log("Playback failed. Ensure you clicked the screen first!", error);
+            });
+        }
+    });
+
+    // Backup: Start music if they click the Main Page's background/overlay
+    window.addEventListener('click', () => {
+        if (bgm.paused) {
+            bgm.play().catch(e => {});
+        }
+    }, { once: true });
+</script>
     
 </body></html>
