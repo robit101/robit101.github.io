@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: url("what you ordered_page3.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Pixelify Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            padding-bottom: 5vh; 
+        }
+
+        .dialogue-container {
+            width: 60%; max-width: 500px;    
+            background-color: #604f3d; border: 3px solid #f9cf51; 
+            padding: 15px 25px; min-height: 100px;   
+            box-sizing: border-box; position: relative;
+            z-index: 10; box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+        }
+
+        .dialogue-text {
+            color: #f9cf51; font-size: 1.4rem; line-height: 1.5;
+            word-spacing: 0.2rem; white-space: pre-wrap; margin: 0; user-select: none;
+        }
+
+        .interactive-item {
+            position: absolute; cursor: pointer;
+            transition: transform 0.2s, filter 0.2s; z-index: 5;
+        }
+
+        .interactive-item:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+        #folder-left { width: 160px; bottom: 22%; left: 4%; }
+        #phone-left  { width: 160px; bottom: 22%; left: 13%; }
+        #folder-right { width: 160px; bottom: 27%; right: 12%; }
+        #phone-right  { width: 160px; bottom: 27%; right: 4%; }
+
+        #summary-btn {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f9cf51;
+            color: #604f3d;
+            padding: 15px 30px;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: 1.5rem;
+            border: 4px solid #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none; 
+            z-index: 20;
+            box-shadow: 0px 0px 20px rgba(249, 207, 81, 0.5);
+        }
+
+        #summary-btn:hover { background-color: #ffffff; color: #604f3d; }
+
+        .click-hint {
+            position: absolute; bottom: 8px; right: 12px;
+            color: #f9cf51; font-size: 0.8rem; animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    </style>
+</head>
+<body onclick="nextDialogue()">
+
+    <img src="folder.png" id="folder-left" class="interactive-item" onclick="event.stopPropagation(); openProfile('Watcher')">
+    <img src="phone.png" id="phone-left" class="interactive-item" onclick="event.stopPropagation(); startChat('Watcher')">
+
+    <img src="folder.png" id="folder-right" class="interactive-item" onclick="event.stopPropagation(); openProfile('Holloway')">
+    <img src="phone.png" id="phone-right" class="interactive-item" onclick="event.stopPropagation(); startChat('Holloway')">
+
+    <button id="summary-btn" onclick="event.stopPropagation(); window.location.href='summary.html'">
+        VIEW FINAL SUMMARY
+    </button>
+
+    <div class="dialogue-container">
+        <p id="text-display" class="dialogue-text"></p>
+        <div class="click-hint">▼</div>
+    </div>
+
+    <script>
+      // 1. Script Setup
+    const instructionScript = [
+        "These are your matches, Mr Watcher on your left and Mr Holloway on your right.",
+        "On their tables is a file and a phone.",
+        "Click on the file if you would like to view your match's profile.",
+        "Click on the phone if you would like to have a text conversation with them."
+    ];
+
+    let currentLine = 0;
+    let charIndex = 0;
+    let isTyping = false;
+    let typingTimer;
+    let isShowingTutorial = true; 
+    const typingSpeed = 40;
+    const textDisplay = document.getElementById("text-display");
+
+    // Load the typing sound
+    const typeSound = new Audio("dragon-studio-keyboard-typing-sound-435501.mp3");
+
+    // 2. Main Dialogue Controller
+    function nextDialogue() {
+        if (!isShowingTutorial) return;
+
+        if (isTyping) {
+            clearTimeout(typingTimer);
+            isTyping = false;
+            typeSound.pause(); //
+            textDisplay.innerText = instructionScript[currentLine - 1];
+            return;
+        }
+
+        if (currentLine < instructionScript.length) {
+            startTypewriter(instructionScript[currentLine]);
+            currentLine++;
+        } else {
+            isShowingTutorial = false;
+            sessionStorage.setItem('hasSeenIntro', 'true'); 
+            checkEndingProgress();
+        }
+    }
+
+    function startTypewriter(text) {
+        isTyping = true;
+        textDisplay.innerText = "";
+        charIndex = 0;
+
+        function type() {
+            if (charIndex < text.length && isTyping) {
+                textDisplay.innerText += text.charAt(charIndex);
+                
+                // Play typing sound
+                if (typeSound.paused) {
+                    typeSound.play().catch(e => console.log("Audio play blocked"));
+                }
+
+                charIndex++;
+                typingTimer = setTimeout(type, typingSpeed);
+            } else {
+                isTyping = false;
+                typeSound.pause(); //
+                typeSound.currentTime = 0;
+            }
+        }
+        type();
+    }
+
+    // 3. Progress Checking Logic
+    function checkEndingProgress() {
+        isShowingTutorial = false; 
+
+        const hollowayFinished = sessionStorage.getItem('holloway_result') === 'finished';
+        const watcherFinished = sessionStorage.getItem('watcher_result') === 'finished';
+        const viewedFile = sessionStorage.getItem('viewedFile') === 'true';
+
+        if (hollowayFinished && watcherFinished) {
+            startTypewriter("You've talked to both characters. You are now ready to view your digital summary.");
+            document.getElementById('summary-btn').style.display = 'block';
+        } else if (viewedFile) {
+            // Acknowledge return from file view
+            startTypewriter("Great! You've viewed a file! Now, why don't you try talking to them?");
+            
+            // IMPORTANT: Reset the flag so it can be triggered again for the next file
+            sessionStorage.setItem('viewedFile', 'false');
+        } else if (hollowayFinished || watcherFinished) {
+            startTypewriter("Welcome back! You still have one match left to talk to.");
+            document.getElementById('summary-btn').style.display = 'none';
+        } else {
+            textDisplay.innerText = "Select a match to begin...";
+            isShowingTutorial = true; 
+        }
+    }
+
+    // 4. Navigation
+    function openProfile(character) {
+        // Set the flag before navigating away
+        sessionStorage.setItem('viewedFile', 'true');
+        window.location.href = character.toUpperCase() + "_file.html";
+    }
+
+    function startChat(character) {
+        window.location.href = character.toUpperCase() + "_chat.html";
+    }
+
+    // 5. Page Load Handler
+    window.onload = () => {
+        const hDone = sessionStorage.getItem('holloway_result') === 'finished';
+        const wDone = sessionStorage.getItem('watcher_result') === 'finished';
+        const viewed = sessionStorage.getItem('viewedFile') === 'true';
+        const seen = sessionStorage.getItem('hasSeenIntro');
+
+        // Trigger checkProgress if they've interacted with ANYTHING
+        if ((hDone || wDone || viewed) && seen) {
+            isShowingTutorial = false;
+            checkEndingProgress();
+        } else {
+            isShowingTutorial = true;
+            nextDialogue(); 
+        }
+    };
+        
+    </script>
+</body>
+</html>

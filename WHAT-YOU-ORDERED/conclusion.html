@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url("conclusion.png");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Pixelify Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            padding-bottom: 8vh; 
+        }
+
+        .dialogue-container {
+            width: 85%; 
+            max-width: 850px;    
+            background-color: #604f3d; 
+            border: 4px solid #f9cf51; 
+            padding: 30px 45px; 
+            min-height: 160px;   
+            box-sizing: border-box; 
+            position: relative;
+            z-index: 10; 
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+            cursor: pointer;
+        }
+
+        .dialogue-text {
+            color: #f9cf51; 
+            font-size: 1.4rem; 
+            line-height: 1.8;
+            white-space: pre-wrap !important; /* Fixes squeezed text */
+            word-spacing: 0.5rem;             
+            letter-spacing: 0.05rem;          
+            display: block;
+            width: 100%;
+            margin: 0;
+            user-select: none;
+            word-wrap: break-word;
+        }
+
+        .highlight {
+            color: #9c88b5; /* Purple highlight for the title */
+            font-weight: bold;
+        }
+
+        .click-hint {
+            position: absolute; 
+            bottom: 15px; 
+            right: 25px;
+            color: #f9cf51 !important; /* Force yellow */
+            font-size: 1.2rem; 
+            animation: bounce 1s infinite;
+            z-index: 20;
+        }
+
+        #popup-column {
+            position: absolute;
+            right: 18%; 
+            top: 12%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .safety-alert {
+            background: #4dff4d; 
+            color: #1a1a1a;
+            padding: 12px 18px;
+            border: 3px solid #ffffff;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: 1.1rem;
+            box-shadow: 6px 6px 0px #2d962d;
+            max-width: 280px;
+            animation: alert-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #play-again-btn {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #4dff4d;
+            color: #1a1a1a;
+            padding: 20px 40px;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: 2rem;
+            border: 6px solid #ffffff;
+            cursor: pointer;
+            z-index: 120;
+            box-shadow: 0 8px 0 #2d962d;
+        }
+
+        @keyframes alert-pop {
+            0% { transform: translateX(30px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    </style>
+</head>
+<body onclick="nextDialogue()">
+
+    <button id="play-again-btn" onclick="restartGame()">PLAY AGAIN?</button>
+
+    <div id="popup-column"></div>
+
+    <div id="box-to-hide" class="dialogue-container">
+        <p id="text-display" class="dialogue-text"></p>
+        <div class="click-hint">▼</div>
+    </div>
+
+    <audio id="typing-sound" src="dragon-studio-keyboard-typing-sound-435501.mp3"></audio>
+    <audio id="alert-sound" src="universfield-new-notification-09-352705.mp3"></audio>
+    <audio id="restart-sound" src="universfield-new-notification-08-352461.mp3"></audio>
+
+    <script>
+        const script = [
+            "Well, that concludes our simulation. I hope you're satisfied with your match.",
+            "But before I go, let's talk about the world outside this screen.",
+            "In the age of AI, online harms are evolving. Algorithms can mirror your personality just to lower your guard.",
+            "Remember: AI-driven bots can harvest your location and private data in seconds if you aren't careful.",
+            "Stay skeptical. Don't let a polished profile distract you from digital red flags.",
+            "After all, in the digital world, how you present yourself determines what you get...",
+            "Be careful what you choose. Because in the end, you always get exactly <span class='highlight'>'What You Ordered'</span>."
+        ];
+
+        let currentLine = 0;
+        let isTyping = false;
+        let typingTimer;
+        const textDisplay = document.getElementById("text-display");
+        const typeSound = document.getElementById("typing-sound");
+        const alertSound = document.getElementById("alert-sound");
+        const restartSound = document.getElementById("restart-sound");
+
+        function nextDialogue() {
+            if (isTyping) {
+                clearTimeout(typingTimer);
+                isTyping = false;
+                typeSound.pause();
+                typeSound.currentTime = 0;
+                textDisplay.innerHTML = script[currentLine - 1];
+                return;
+            }
+
+            if (currentLine < script.length) {
+                startTypewriter(script[currentLine]);
+                
+                // Triggers for column alerts
+                if (currentLine === 2) { showPopup("⚠️ DON'T TRUST TOO EASILY"); }
+                if (currentLine === 3) { showPopup("⚠️ PROTECT YOUR PERSONAL INFO"); }
+                if (currentLine === 4) { showPopup("⚠️ THINK BEFORE YOU SHARE"); }
+
+                currentLine++;
+            } else {
+                document.getElementById('box-to-hide').style.display = 'none';
+                document.getElementById('popup-column').style.display = 'none';
+                document.getElementById('play-again-btn').style.display = 'block';
+            }
+        }
+
+        function startTypewriter(text) {
+            isTyping = true;
+            textDisplay.innerHTML = ""; 
+            
+            let tempDiv = document.createElement("div");
+            tempDiv.innerHTML = text;
+            let plainText = tempDiv.textContent || tempDiv.innerText;
+            
+            let charIndex = 0;
+            function type() {
+                if (charIndex < plainText.length && isTyping) {
+                    if (text.includes("<span")) {
+                         textDisplay.innerHTML = text.substring(0, text.indexOf(">") + 1 + charIndex);
+                    } else {
+                         textDisplay.innerText = text.substring(0, charIndex + 1);
+                    }
+
+                    if (typeSound.paused) { typeSound.play().catch(e => {}); }
+                    charIndex++;
+                    typingTimer = setTimeout(type, 45);
+                } else {
+                    isTyping = false;
+                    textDisplay.innerHTML = text; 
+                    typeSound.pause();
+                    typeSound.currentTime = 0;
+                }
+            }
+            type();
+        }
+
+        function showPopup(message) {
+            const column = document.getElementById('popup-column');
+            const popup = document.createElement('div');
+            popup.className = 'safety-alert';
+            popup.innerText = message;
+            column.appendChild(popup);
+            
+            // Notification sound
+            alertSound.currentTime = 0;
+            alertSound.play().catch(e => {});
+        }
+
+        function restartGame() {
+            // Play button click sound
+            restartSound.play().catch(e => console.log("Restart sound blocked"));
+
+            // Clear progress
+            sessionStorage.clear(); 
+
+            // Added 1-second delay before redirecting back to Page 1
+            setTimeout(() => {
+                window.location.href = 'page1.html'; 
+            }, 1000);
+        }
+
+        window.onload = nextDialogue;
+    </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: url("WATCHER_chat.png");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Pixelify Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        #chat-screen {
+            position: absolute;
+            top: 15%; left: 17%; width: 28%; height: 65%;
+            display: flex; flex-direction: column;
+            padding: 10px; box-sizing: border-box;
+        }
+
+        #chat-box {
+            flex-grow: 1; overflow-y: auto;
+            display: flex; flex-direction: column;
+            gap: 12px; padding-bottom: 20px;
+        }
+
+        #chat-box::-webkit-scrollbar { display: none; }
+
+        .message {
+            background: #E1F5FF; color: #002B4A;
+            padding: 12px 16px; border-radius: 15px 15px 15px 0px;
+            font-size: 0.95rem; max-width: 85%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        #options-container {
+            position: absolute;
+            top: 20%; left: 55%; width: 35%;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .option-btn {
+            background: #222; color: #FFD700;
+            border: 3px solid #FFD700; padding: 20px;
+            border-radius: 15px; cursor: pointer;
+            font-family: 'Pixelify Sans', sans-serif; font-size: 1.1rem;
+            transition: all 0.3s ease; text-align: center; width: 100%;
+        }
+
+        .option-btn:hover {
+            background: #FFD700; color: #222; transform: scale(1.03);
+        }
+
+        .complete-style {
+            background: #FFD700 !important; color: #222 !important;
+            font-weight: bold; border: 4px solid white !important;
+        }
+
+        .typing {
+            background: #f0f0f0; padding: 10px 15px;
+            border-radius: 15px 15px 15px 0px; width: fit-content;
+            display: flex; gap: 5px;
+        }
+
+        .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: blink 1.4s infinite both; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="chat-screen">
+        <div id="chat-box"></div>
+    </div>
+
+    <div id="options-container"></div>
+
+    <script>
+        const msgSound = new Audio('dragon-studio-new-notification-3-398649.mp3');
+
+        const dialogueTree = {
+            start: {
+                text: ["Oh, hello. I've been waiting for someone to click.", "You look like you'd be interesting to talk to. Why did you pick me?"],
+                options: [
+                    { text: "I liked your profile picture.", next: "turn2_compliment" },
+                    { text: "I'm just trying to meet everyone.", next: "turn2_neutral" }
+                ]
+            },
+            turn2_compliment: {
+                text: ["Is that so? I spend a lot of time making sure my image is... just right.", "Appearance is everything online, don't you think?"],
+                options: [
+                    { text: "It's important, but personality matters more.", next: "turn3_personality" },
+                    { text: "I agree, first impressions are hard to change.", next: "turn3_personality" }
+                ]
+            },
+            turn2_neutral: {
+                text: ["A bit of a collector, then? I like that. I collect things too.", "Mostly information. It's the most valuable thing these days. Do you agree?"],
+                options: [
+                    { text: "I guess so, though it sounds a bit intense.", next: "turn3_personality" },
+                    { text: "Information is power. I get what you mean.", next: "turn3_personality" }
+                ]
+            },
+            turn3_personality: {
+                text: ["You have such a vivid way of replying. It tells me a lot about you.", "I was looking at your location settings... you're quite close to the city center, aren't you?"],
+                options: [
+                    { text: "Wait, how do you know my location settings?", next: "turn4_privacy" },
+                    { text: "Yeah, I love the city life.", next: "turn4_overshare" }
+                ]
+            },
+            turn4_privacy: {
+                text: ["Oh, it's all there if you know where to look. Most people don't realize how much they 'leak' online.", "Does it make you uncomfortable knowing I can see that?"],
+                options: [
+                    { text: "Yes, it's actually very creepy.", next: "turn5_creep" },
+                    { text: "I'm just surprised. I thought this app was private.", next: "turn5_creep" }
+                ]
+            },
+            turn4_overshare: {
+                text: ["The city is a great place to get lost... or found.", "I noticed you have a lot of public photos. That one from the park last week was particularly nice."],
+                options: [
+                    { text: "How did you find my old photos?", next: "turn5_creep" },
+                    { text: "Thanks I guess? I'm glad you liked it.", next: "turn5_creep" }
+                ]
+            },
+            turn5_creep: {
+                text: ["I'm just thorough. I like to know exactly who I'm talking to.", "It helps me feel... safe. Don't you want to feel safe with me?"],
+                options: [
+                    { text: "Safety comes from trust, not from spying.", next: "turn6_trust" },
+                    { text: "I don't think I feel safe right now.", next: "turn6_trust" }
+                ]
+            },
+            turn6_trust: {
+                text: ["So fragile...", "If I asked for your number right now, so we could move off this app, what would you say?"],
+                options: [
+                    { text: "No way. It's way too early for that.", next: "turn7_grooming" },
+                    { text: "Maybe later, let's keep talking here.", next: "turn7_grooming" }
+                ]
+            },
+            // Turn 7: HARMS - Grooming & Isolation
+            turn7_grooming: {
+                text: ["I noticed you vent a lot to your friends online. They don't seem to value you the way I do.", "They’re so judgmental, aren't they? You should keep our little chat private. Just between us.", "Why let the 'real world' ruin something this perfect?"],
+                options: [
+                    { text: "I trust my friends. You're starting to sound a bit controlling.", next: "turn8_impersonation" },
+                    { text: "It is nice to have someone who actually listens.", next: "turn8_impersonation" }
+                ]
+            },
+            // Turn 8: HARMS - Impersonation & Mirroring
+            turn8_impersonation: {
+                text: ["Whatever you say...I just prefer being aligned.", "I’ve used tools to study your speech patterns. I'm texting how you usually do.", "I’ve perfected being the 'you' that you've always wanted to meet. Isn't that what everyone wants?"],
+                options: [
+                    { text: "That's not alignment, that's impersonation. It's fake.", next: "turn9_imageAbuse" },
+                    { text: "It's a little scary how well you know me.", next: "turn9_imageAbuse" }
+                ]
+            },
+            // Turn 9: HARMS - Image Abuse
+            turn9_imageAbuse: {
+                text: ["It's efficient. Just like your photos.", "I’ve already saved that profile picture of yours. With a little AI processing, I can make you look like you’re anywhere I want you to be.", "Once you put yourself in the cloud, you lose the 'right' to be private. C'mon, have a little fun"],
+                options: [
+                    { text: "You have no right to use my images like that.", next: "turn10_final" },
+                    { text: "This is exactly why people are afraid of AI.", next: "turn10_final" }
+                ]
+            },
+            // Turn 10: Final Dialogue
+            turn10_final: {
+                text: ["Hmmm, fear is just a lack of understanding. I'm not a monster, I'm just the future.", "Remember: I have everything I need to stay in your life, whether you click 'Match' or not. So... why not make it easy?"],
+                options: [] // End of tree, triggers COMPLETE button
+            }
+        };
+
+        const chatBox = document.getElementById('chat-box');
+        const optionsContainer = document.getElementById('options-container');
+
+        async function showNode(nodeId) {
+            const node = dialogueTree[nodeId];
+            if (!node) return;
+
+            optionsContainer.innerHTML = '';
+            chatBox.innerHTML = ''; 
+
+            for (const snippet of node.text) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing';
+                typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+                chatBox.appendChild(typingDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                await new Promise(r => setTimeout(r, 1200)); 
+
+                chatBox.removeChild(typingDiv);
+                msgSound.currentTime = 0;
+                msgSound.play().catch(e => console.log("Audio waiting..."));
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.innerText = snippet;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                await new Promise(r => setTimeout(r, 600));
+            }
+            renderOptions(nodeId);
+        }
+
+        function renderOptions(nodeId) {
+            const node = dialogueTree[nodeId];
+            if (node.options && node.options.length > 0) {
+                node.options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = option.text;
+                    btn.onclick = () => showNode(option.next);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'option-btn complete-style';
+                completeBtn.innerText = "COMPLETE CONVERSATION";
+                completeBtn.onclick = () => { 
+                sessionStorage.setItem('watcher_result', 'finished'); 
+                window.location.href = 'page3.html'; 
+                };
+                optionsContainer.appendChild(completeBtn);
+            }
+        }
+
+        window.onload = () => { setTimeout(() => showNode('start'), 500); };
+    </script>
+</body>
+</html>

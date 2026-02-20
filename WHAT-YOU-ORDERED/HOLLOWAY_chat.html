@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url("HOLLOWAY_chat.png");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Pixelify Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        #chat-screen {
+            position: absolute;
+            top: 15%; left: 17%; width: 28%; height: 65%;
+            display: flex; flex-direction: column;
+            padding: 10px; box-sizing: border-box;
+        }
+
+        #chat-box {
+            flex-grow: 1; overflow-y: auto;
+            display: flex; flex-direction: column;
+            gap: 12px; padding-bottom: 20px;
+        }
+
+        #chat-box::-webkit-scrollbar { display: none; }
+
+        .message {
+            background: #FFF5E1; color: #4A2C02;
+            padding: 12px 16px; border-radius: 15px 15px 15px 0px;
+            font-size: 0.95rem; max-width: 85%;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
+        }
+
+        #options-container {
+            position: absolute;
+            top: 20%; left: 55%; width: 35%;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .option-btn {
+            background: #222; color: #FFD700;
+            border: 3px solid #FFD700; padding: 20px;
+            border-radius: 15px; cursor: pointer;
+            font-family: 'Pixelify Sans', sans-serif; font-size: 1.1rem;
+            transition: all 0.3s ease; text-align: center; width: 100%;
+        }
+
+        .option-btn:hover {
+            background: #FFD700; color: #222; transform: scale(1.03);
+        }
+
+        .complete-style {
+            background: #FFD700 !important; color: #222 !important;
+            font-weight: bold; border: 4px solid white !important;
+        }
+
+        .typing {
+            background: #f0f0f0; padding: 10px 15px;
+            border-radius: 15px 15px 15px 0px; width: fit-content;
+            display: flex; gap: 5px;
+        }
+
+        .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: blink 1.4s infinite both; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="chat-screen">
+        <div id="chat-box"></div>
+    </div>
+
+    <div id="options-container"></div>
+
+    <script>
+        const msgSound = new Audio('dragon-studio-new-notification-3-398649.mp3');
+
+        const dialogueTree = {
+            start: {
+                text: ["Hey, thanks for agreeing to chat.", "You seem really nice. What made you want to chat with a gentleman like me?"],
+                options: [
+                    { text: "Just curious! I'm happy to chat and see how it goes.", next: "introCurious" },
+                    { text: "Honestly? I'm looking for someone I can really talk to.", next: "introHonest" }
+                ]
+            },
+            introCurious: {
+                text: ["Curiosity is a wonderful trait.", "I usually find the best conversations happen when people aren't trying too hard. Do you agree?"],
+                options: [
+                    { text: "I totally agree. Let's keep it natural.", next: "hobbyTurn3" },
+                    { text: "Sometimes, but effort matters too.", next: "hobbyTurn3" }
+                ]
+            },
+            introHonest: {
+                text: ["I value that. Finding a real connection online is rare.", "It's why I take my time to get to know someone properly. Shall we take it slow?"],
+                options: [
+                    { text: "I'd like that. Let's start with something simple.", next: "hobbyTurn3" },
+                    { text: "Slow is good. Patience is a virtue.", next: "hobbyTurn3" }
+                ]
+            },
+            hobbyTurn3: {
+                text: ["Splendid. I've been spending my morning in my workshop—I enjoy a bit of woodworking.", "It's quiet, manual, and honest. What about you? How do you like to spend your quiet hours?"],
+                options: [
+                    { text: "I love being creative—drawing or writing.", next: "hobbyFollowUp4" },
+                    { text: "I'm more of a 'scroll and relax' type of person.", next: "hobbyFollowUp4" }
+                ]
+            },
+            hobbyFollowUp4: {
+                text: ["That sounds lovely.", "I find that people share so much of their lives online these days that they forget to keep a little for themselves."],
+                options: [
+                    { text: "Do you think people share too much?", next: "privacyTurn5" },
+                    { text: "Sharing is how we connect!", next: "privacyTurn5" }
+                ]
+            },
+            privacyTurn5: {
+                text: ["It's a balance. I saw your profile was quite detailed!", "I actually keep mine locked down until I really trust someone. Safety first.", "Is it better to be an open book or keep a few chapters locked?"],
+                options: [
+                    { text: "Definitely locked. Trust must be earned.", next: "privacyDone6" },
+                    { text: "I'm an open book! No secrets here.", next: "privacyDone6" }
+                ]
+            },
+            privacyDone6: {
+                text: ["A wise perspective. Boundaries are important.", "I noticed you have your location on. Doesn't it make you feel a bit... exposed?"],
+                options: [
+                    { text: "I never really thought about it until now.", next: "turn7_gentleman" },
+                    { text: "I like showing people where I'm at!", next: "turn7_gentleman" }
+                ]
+            },
+            turn7_gentleman: {
+                text: ["It’s important to be mindful. The digital world has a long memory.", "I try to be a man of my word. Is reliability something you value?"],
+                options: [
+                    { text: "Absolutely, it's the most important thing.", next: "turn8_prepared" },
+                    { text: "It's important, but I like spontaneity too.", next: "turn8_prepared" }
+                ]
+            },
+            turn8_prepared: {
+                text: [
+                    "Balance is everything. I've spent my day organizing my thoughts to be prepared for this.",
+                    "Staying consistent is how I show respect for your time."
+                ],
+                options: [
+                    { text: "You talk about being 'consistent' like a program.", next: "machineCallout9" },
+                    { text: "I appreciate the effort you put in to prepare.", next: "turn9_respect" }
+                ]
+            },
+            machineCallout9: {
+                text: [
+                    "A program? Perhaps I am just mirroring the sincerity you deserve.",
+                    "These platforms often mimic empathy just to keep us scrolling, but I’d rather you be skeptical than trust too easily.",
+                    "It shows you have a strong digital shield."
+                ],
+                options: [
+                    { text: "Are you speaking from experience or is this a tactic?", next: "turn10_final" },
+                    { text: "I didn't expect you to encourage my skepticism.", next: "turn10_final" }
+                ]
+            },
+            turn9_respect: {
+                text: [
+                    "It is my pleasure. First impressions are the only ones that truly belong to us.",
+                    "I hope you feel safe chatting here. I try to maintain a high standard of digital etiquette.",
+                    "Do you find it easy to trust people in spaces like this?"
+                ],
+                options: [
+                    { text: "You're much more respectful than others I've met.", next: "turn10_final" },
+                    { text: "I'm still cautious, but you're making it easier.", next: "turn10_final" }
+                ]
+            },
+            turn10_final: {
+                text: [
+                    "Caution is a virtue, and your time is a gift.",
+                    "I've truly enjoyed getting to know your perspective today. I hope you take these lessons with you, no matter who you chat with next.",
+                    "The app is asking for your final decision. Choose wisely."
+                ],
+                options: [] // This triggers the COMPLETE button
+            }
+        };
+
+        const chatBox = document.getElementById('chat-box');
+        const optionsContainer = document.getElementById('options-container');
+
+        async function showNode(nodeId) {
+            const node = dialogueTree[nodeId];
+            if (!node) return;
+
+            optionsContainer.innerHTML = '';
+            chatBox.innerHTML = ''; 
+
+            for (const snippet of node.text) {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing';
+                typingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+                chatBox.appendChild(typingDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                await new Promise(r => setTimeout(r, 1200)); 
+
+                chatBox.removeChild(typingDiv);
+                msgSound.currentTime = 0;
+                msgSound.play().catch(e => console.log("Audio waiting..."));
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.innerText = snippet;
+                chatBox.appendChild(messageDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                await new Promise(r => setTimeout(r, 600));
+            }
+            renderOptions(nodeId);
+        }
+
+        function renderOptions(nodeId) {
+            const node = dialogueTree[nodeId];
+            if (node.options && node.options.length > 0) {
+                node.options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = option.text;
+                    btn.onclick = () => showNode(option.next);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                const completeBtn = document.createElement('button');
+    completeBtn.className = 'option-btn complete-style';
+    completeBtn.innerText = "COMPLETE CONVERSATION";
+    completeBtn.onclick = () => { 
+    // Change localStorage to sessionStorage here
+    sessionStorage.setItem('holloway_result', 'finished'); 
+    window.location.href = 'page3.html'; 
+    };
+    optionsContainer.appendChild(completeBtn);
+            }
+        }
+
+        window.onload = () => { setTimeout(() => showNode('start'), 500); };
+    </script>
+</body>
+</html>

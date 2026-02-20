@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url("what you ordered_page 2.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Pixelify Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; 
+            padding-bottom: 40px;
+        }
+
+        .dialogue-container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #604f3d; 
+            border: 4px solid #f9cf51; 
+            padding: 25px 40px; /* Increased horizontal padding */
+            min-height: 160px; /* Slightly taller for wrapping text */
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.5);
+        }
+
+            .dialogue-text {
+        color: #f9cf51; 
+        font-size: 1.4rem; 
+        line-height: 1.8;
+        
+        /* CRITICAL FIXES FOR SQUEEZED TEXT */
+        white-space: pre-wrap !important; /* Preserves the actual space characters */
+        word-spacing: 0.5rem;             /* Forces a wide gap between words */
+        letter-spacing: 0.05rem;          /* Adds breathing room between letters */
+        
+        /* PREVENTS OVERFLOW */
+        display: block;
+        width: 100%;
+        margin: 0;
+        user-select: none;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        }
+
+        .click-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            color: #f9cf51;
+            font-size: 0.8rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body onclick="nextDialogue()">
+
+    <audio id="bgMusic" src="indie music.mp3" loop></audio>
+    <audio id="typing-sound" src="dragon-studio-keyboard-typing-sound-435501.mp3"></audio>
+
+    <div class="dialogue-container">
+        <p id="text-display" class="dialogue-text"></p>
+        <div class="click-indicator">▼</div>
+    </div>
+
+    <script>
+    const script = [
+        "Hello, welcome to Second Serving. The table has already been set for you. Tonight’s experience is simple.",
+        "You’ll be meeting two new people. Strangers...",
+        "Get to know them through text. All you have to do is respond and decide what to share.",
+        "Some conversations will feel warm. Some will feel familiar. And some… may ask for more than you intended to give.",
+        "You may check the profiles of your guests by clicking on the files. After your conversation ends, you can get a summary of all that was said.",
+        "Once you have had an online conversation with your guest, you may decide who you wish to go on a date with at our humble restaurant.",
+        "Don’t worry. Everything here is perfectly normal. You may leave at any time.",
+        "Choose wisely."
+    ];
+
+    let currentLine = 0;
+    let isTyping = false;
+    let charIndex = 0;
+    let typingTimer;
+    const typingSpeed = 40;
+
+    const textDisplay = document.getElementById("text-display");
+    const music = document.getElementById("bgMusic");
+    const typeSound = document.getElementById("typing-sound");
+
+    function nextDialogue() {
+        // Start background music on first interaction
+        if (music.paused) {
+            music.play().catch(err => console.log("Music waiting for interaction."));
+        }
+
+        // If user clicks while typing, skip to the end of the current line
+        if (isTyping) {
+            clearTimeout(typingTimer);
+            isTyping = false;
+            typeSound.pause(); //
+            textDisplay.innerText = script[currentLine - 1];
+            return;
+        }
+
+        if (currentLine < script.length) {
+            startTypewriter(script[currentLine]);
+            currentLine++;
+        } else {
+            textDisplay.innerText = "Loading Simulation...";
+            window.location.href = "page3.html"; 
+        }
+    }
+
+    function startTypewriter(text) {
+        isTyping = true;
+        textDisplay.innerText = "";
+        charIndex = 0;
+
+        function type() {
+            if (charIndex < text.length && isTyping) {
+                textDisplay.innerText += text.charAt(charIndex);
+                
+                // Play typing sound
+                if (typeSound.paused) {
+                    typeSound.play().catch(e => console.log("Audio blocked"));
+                }
+
+                charIndex++;
+                typingTimer = setTimeout(type, typingSpeed);
+            } else {
+                isTyping = false;
+                typeSound.pause(); //
+                typeSound.currentTime = 0;
+            }
+        }
+        type();
+    }
+
+    window.onload = () => {
+        // Automatically start the first line
+        nextDialogue();
+    };
+</script>
+</body>
+</html>

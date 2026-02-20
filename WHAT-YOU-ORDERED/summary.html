@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: url("summary.png");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Fixes info to screen, no scrolling */
+            font-family: 'Pixelify Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #f9cf51;
+        }
+
+        h1 { 
+            font-size: 2.8rem; 
+            margin: 2vh 0; 
+            text-shadow: 3px 3px #604f3d; 
+        }
+        
+        .report-grid {
+            display: flex;
+            justify-content: space-around;
+            width: 95%;
+            height: 58vh;
+            margin-top: 1vh;
+        }
+
+        .card {
+            width: 35%;
+            background: rgba(96, 79, 61, 0.95); /* Semi-transparent brown */
+            border: 4px solid #f9cf51;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .card h2 {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #f9cf51;
+        }
+
+        .analysis-list {
+            text-align: left;
+            padding: 0;
+            margin: 15px 0;
+            list-style: none;
+            font-size: 1rem;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        /* Hover-Interactive Buttons */
+        .match-btn, .btn-final-exit {
+            background: #f9cf51;
+            color: #604f3d;
+            border: 4px solid #ffffff;
+            padding: 12px 20px;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: 1.3rem;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 6px 0 #b38f2a;
+            transition: all 0.2s ease;
+        }
+
+        .match-btn:hover, .btn-final-exit:hover {
+            background: #ffffff;
+            color: #604f3d;
+            transform: translateY(-4px); /* Lifts up */
+            box-shadow: 0 10px 0 #b38f2a; /* Deepens shadow */
+        }
+
+        .match-btn:active, .btn-final-exit:active {
+            transform: translateY(2px); /* Clicked state */
+            box-shadow: 0 2px 0 #b38f2a;
+        }
+
+        /* Final Result Overlay */
+        #final-overlay {
+            display: none; /* Controlled by selectMatch() */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .verdict-title { font-size: 3.5rem; margin-bottom: 20px; }
+        .verdict-text { font-size: 1.4rem; max-width: 750px; color: white; line-height: 1.6; margin-bottom: 30px; }
+
+    </style>
+</head>
+<body>
+
+    <h1>WHO IS YOUR PERFECT MATCH?</h1>
+
+    <div class="report-grid">
+        <div class="card">
+            <h2>The Watcher</h2>
+            <p style="color: #ff4d4d; font-weight: bold;">RISK LEVEL: CRITICAL</p>
+            <ul class="analysis-list">
+                <li>⚠️ They tracked your responses to mirror your personality.</li>
+                <li>⚠️ They attempted to access your active location data.</li>
+                <li>⚠️ Conversation was a "test" of your digital boundaries.</li>
+            </ul>
+            <button class="match-btn" onclick="selectMatch('watcher')">DATE THE WATCHER</button>
+        </div>
+
+        <div class="card">
+            <h2>Mr. Holloway</h2>
+            <p style="color: #4dff4d; font-weight: bold;">RISK LEVEL: LOW</p>
+            <ul class="analysis-list">
+                <li>✅ Encouraged you to be skeptical of digital platforms.</li>
+                <li>✅ Respects your boundaries and personal space.</li>
+                <li>✅ A "gentleman" who values sincere connection.</li>
+            </ul>
+            <button class="match-btn" onclick="selectMatch('holloway')">DATE MR. HOLLOWAY</button>
+        </div>
+    </div>
+
+    <div id="final-overlay">
+        <h2 id="result-title" class="verdict-title"></h2>
+        <p id="result-desc" class="verdict-text"></p>
+        
+        <button class="btn-final-exit" onclick="goToConclusion()">PROCEED TO FINAL DEBRIEF</button>
+    </div>
+
+    <script>
+        function selectMatch(choice) {
+            // Check if both are actually finished
+            const hDone = sessionStorage.getItem('holloway_result') === 'finished'; 
+            const wDone = sessionStorage.getItem('watcher_result') === 'finished';
+
+            // Show Overlay
+            document.getElementById('final-overlay').style.display = 'flex';
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+
+            if (choice === 'watcher') {
+                title.innerText = "A DANGEROUS ATTRACTION";
+                title.style.color = "#ff4d4d";
+                desc.innerText = "You chose mystery over safety. The Watcher now has your trust. In the digital dating world, sometimes the most 'exciting' match is the one that leaves you most exposed.";
+            } else {
+                title.innerText = "A SECURE CONNECTION";
+                title.style.color = "#4dff4d";
+                desc.innerText = "You chose sincerity and respect. Mr. Holloway represents a safe digital future where boundaries are honored. You've proved that your privacy is not for sale.";
+            }
+        }
+
+        function goToConclusion() {
+            // Data is kept until conclusion.html is finished
+            window.location.href = 'conclusion.html';
+        }
+    </script>
+</body>
+</html>

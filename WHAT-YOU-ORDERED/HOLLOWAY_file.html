@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://fmscmd.com/xdlab/imda/iframe-template.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+        <!-- change the title accordingly-->
+        <title>Page 2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: url("HOLLOWAY_file.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Pixelify Sans', sans-serif;
+            touch-action: none; /* Prevents scrolling while dragging the glass */
+        }
+
+        /* The Magnifying Glass - Sizing matched to Watcher file */
+        #fake-cursor {
+            position: fixed; 
+            width: 120px; 
+            z-index: 9999; 
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            display: block;
+            left: 50%;
+            top: 50%;
+        }
+
+        #fake-cursor:active {
+            cursor: grabbing;
+        }
+
+        .hotspot {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* border: 1px dashed gold; /* Uncomment for testing */
+        }
+
+        .truth {
+            opacity: 0;
+            color: #FFD700; /* Holloway's signature gold */
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 4px #000;
+            transition: opacity 0.3s ease;
+            pointer-events: none; 
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 12px;
+            border-radius: 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Class added via JS when glass overlaps */
+        .hotspot.reveal .truth {
+            opacity: 1;
+        }
+
+        .back-hint {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.4);
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 20px;
+            pointer-events: auto;
+            z-index: 10000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="back-hint" onclick="window.location.href='page3.html'">← Click to go back</div>
+
+    <img src="magnifyingglass.png" id="fake-cursor">
+
+    <div class="hotspot" style="top: 13%; left: 34%; width: 110px; height: 110px;">
+        <span class="truth">He carves a new pumpkin every week</span>
+    </div>
+
+    <div class="hotspot" style="top: 60%; left: 43%; width: 280px; height: 50px;">
+        <span class="truth">Voted 'Kindest Neighbor' 3 years in a row</span>
+    </div>
+
+    <div class="hotspot" style="top: 85%; left: 32%; width: 350px; height: 60px;">
+        <span class="truth">He keeps every letter his friends send him</span>
+    </div>
+
+    <script>
+        const fakeCursor = document.getElementById('fake-cursor');
+        const hotspots = document.querySelectorAll('.hotspot');
+        let isDragging = false;
+
+        function updatePosition(x, y) {
+            fakeCursor.style.left = x + 'px';
+            fakeCursor.style.top = y + 'px';
+
+            // Collision detection for mobile-friendly reveals
+            hotspots.forEach(spot => {
+                const rect = spot.getBoundingClientRect();
+                if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+                    spot.classList.add('reveal');
+                } else {
+                    spot.classList.remove('reveal');
+                }
+            });
+        }
+
+        // Desktop Mouse Support
+        document.addEventListener('mousedown', (e) => {
+            if (e.target === fakeCursor) isDragging = true;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            updatePosition(e.clientX, e.clientY);
+        });
+
+        // Mobile Touch Support
+        fakeCursor.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            e.preventDefault(); 
+        }, {passive: false});
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                updatePosition(touch.clientX, touch.clientY);
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Hide default cursor
+        document.body.style.cursor = 'none';
+    </script>
+          
+</body>
+</html>
